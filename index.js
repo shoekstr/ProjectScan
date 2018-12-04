@@ -1,6 +1,8 @@
 const fs = require('fs')
 const path = require('path')
 
+const walk = require('./libs/walk')
+
 if (process.argv.length <= 2) {
   console.log("Usage: " + __filename + " path/to/directory")
   process.exit(-1)
@@ -8,14 +10,15 @@ if (process.argv.length <= 2) {
 
 const scanDir = process.argv[2]
 
-const filesToScan = []
-const dirToScan = []
+walk(scanDir, (err, files) => {
+  if (err) {
+    console.log('Error:', err)
+    process.exit(1)
+  }
 
-dirToScan.push(scanDir)
+  console.log('Files', files)
+})
 
-for (const dir of dirToScan) {
-  console.log('Directory to Scan', dir)
-}
 // fs.readdir(scanDir, function(err, items) {
 //     console.log(items);
 //
