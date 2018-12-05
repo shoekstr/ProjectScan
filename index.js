@@ -10,28 +10,34 @@ if (process.argv.length <= 2) {
 }
 
 const scanDir = process.argv[2]
+const results = []
 
-walk(scanDir, (err, files) => {
+const program = (scanDir, callback) => {
+  walk(scanDir, (err, files) => {
+    if (err) callback(err)
+
+    let pending = files.length
+    if (!pending) callback(null, results)
+
+    for (const file of files) {
+      scanFile(file, (err, imports) => {
+        if (err) callback(err)
+
+        results.push({
+          file: file,
+          imports: imports
+        })
+        if (!--pending) callback(null, results)
+      })
+    }
+  })
+}
+
+program (scanDir, (err, object) => {
   if (err) {
     console.log('Error:', err)
     process.exit(-1)
   }
 
-  console.log('Files', files)
-  scanFile(files[0], (err, file) => {
-    if (err) {
-      console.log('Error:', err)
-      process.exit(-1)
-    }
-
-    console.log('Done', file)
-  })
+  console.log('Program', object)
 })
-
-// fs.readdir(scanDir, function(err, items) {
-//     console.log(items);
-//
-//     for (var i=0; i<items.length; i++) {
-//         console.log(items[i]);
-//     }
-// });
